@@ -6,12 +6,20 @@ import { TURNS} from "./components/constants.jsx"
 import { checkWinnerFrom } from "./logic/board.js"
 import { WinnerModal } from "./components/WinnerModal.jsx"
 
-function App() {
-  const [board, setBoard] = useState(
-    Array(9).fill(null)
-  )
 
-  const [turn, setTurn] = useState(TURNS.X)
+function App() {
+
+  const [board, setBoard] = useState(()=>{
+    const boardFromStorage = window.localStorage.getItem('board')
+    if(boardFromStorage) return JSON.parse(boardFromStorage)
+    return Array(9).fill(null)
+ })
+
+  const [turn, setTurn] = useState(() => {
+    const turnFromsStorage = window.localStorage.getItem('turn') 
+    return turnFromsStorage ??  TURNS.X
+   
+  })
 
   //null es que no hay ganador, false es un empate.
   const [winner, setWinner] = useState(null)
@@ -23,6 +31,9 @@ function App() {
     setBoard(Array(9).fill(null))
     setTurn(TURNS.X)
     setWinner(null)
+
+    window.localStorage.removeItem('board')
+    window.localStorage.removeItem('turn')
   }
 
 
@@ -45,6 +56,10 @@ function App() {
     //Cambiar el turno
     const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
     setTurn(newTurn)
+    //Guardar aqui partida
+    window.localStorage.setItem('board', JSON.stringify(newBoard))
+    window.localStorage.setItem('turn', newTurn)
+    //Revisar si hay ganador
     const newWinner = checkWinnerFrom(newBoard)
 
     if (newWinner){
